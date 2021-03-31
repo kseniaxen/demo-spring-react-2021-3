@@ -29,12 +29,22 @@ const styles = (theme: Theme) => createStyles
                 width: '25ch',
             },
         },
+        submitTitle:{
+            [theme.breakpoints.down("xs")]: {
+                display:"none"
+            },
+        },
         signInGrid: {
             minHeight: '100vh'
         },
         card: {
             width: 275
         },
+        sendIcon:{
+            [theme.breakpoints.down("xl")]: {
+                display:"none"
+            },
+        }
     })
 
 @inject("commonStore", "userStore")
@@ -120,8 +130,12 @@ class SignIn extends Component<IProps, IState> {
                                         disabled={loading}
                                         onClick={this.handleSubmitForm}
                                     >
-                                        Submit
-                                        <SendIcon/>
+                                        <span
+                                            className={classes.submitTitle}
+                                        >
+                                            Submit
+                                        </span>
+                                        <SendIcon className={classes.sendIcon}/>
                                     </Button>
                                 </div>
                             </form>
