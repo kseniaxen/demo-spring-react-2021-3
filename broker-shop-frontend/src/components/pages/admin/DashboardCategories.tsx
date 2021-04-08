@@ -1,6 +1,17 @@
 import React, { Component } from 'react'
 import {inject, observer} from "mobx-react"
-import {Button, createStyles, Drawer, Table, TextField, Theme, withStyles, WithStyles} from "@material-ui/core";
+import {
+    Button,
+    createStyles,
+    Dialog, DialogActions, DialogContent, DialogContentText,
+    DialogTitle,
+    Drawer,
+    Table,
+    TextField,
+    Theme,
+    withStyles,
+    WithStyles
+} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
@@ -17,7 +28,10 @@ interface IInjectedProps extends IProps, WithStyles<typeof styles> {
 
 interface IState {
     // флаг: отображать ли сейчас панель
-    sidePanelVisibility: boolean
+    sidePanelVisibility: boolean,
+    // флаг: отображать ли сейчас диалог удаления
+    dialogDeleteVisibility: boolean,
+    deleteCategory: number
 }
 
 const styles = (theme: Theme) =>
@@ -40,7 +54,9 @@ class DashboardCategories extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props)
         this.state = {
-            sidePanelVisibility: false
+            sidePanelVisibility: false,
+            dialogDeleteVisibility: false,
+            deleteCategory:0
         }
     }
 
@@ -83,7 +99,14 @@ class DashboardCategories extends Component<IProps, IState> {
     }
 
     handleCategoryDelete = (e: React.MouseEvent, categoryId: number) => {
-        this.injected.categoryStore.setCurrentCategoryId(categoryId)
+        this.setState({dialogDeleteVisibility: true})
+        this.setState({deleteCategory: categoryId})
+    }
+
+    handleCategoryDeleteSubmit = (e: React.MouseEvent) =>{
+        e.preventDefault()
+        this.setState({dialogDeleteVisibility: false})
+        this.injected.categoryStore.setCurrentCategoryId(this.state.deleteCategory)
         this.injected.categoryStore.deleteCategory()
     }
 
@@ -98,6 +121,10 @@ class DashboardCategories extends Component<IProps, IState> {
             this.injected.categoryStore.update()
         }
     }
+
+    handleCloseDialogDelete = (e: React.MouseEvent) => {
+        this.setState({dialogDeleteVisibility: false})
+    };
 
     render () {
         const { loading } = this.injected.commonStore
@@ -135,6 +162,22 @@ class DashboardCategories extends Component<IProps, IState> {
                     </div>
                 </form>
             </Drawer>
+            <Dialog open={ this.state.dialogDeleteVisibility } onClose={this.handleCloseDialogDelete}>
+                <DialogTitle>{"Delete category"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Do you confirm to delete this category?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={this.handleCloseDialogDelete} color="primary">
+                        Disagree
+                    </Button>
+                    <Button onClick={this.handleCategoryDeleteSubmit} color="primary" autoFocus>
+                        Agree
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <Table>
                 <thead>
                 <tr className={classes.categoriesTableColumnsHeader}>
